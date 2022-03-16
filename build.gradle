@@ -21,7 +21,7 @@ dependencies {
 	// tag::tests[]
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 	// end::tests[]
-	// compile fileTree(dir: 'lib', include: ['*.jar'])
+	implementation  files("lib/Filters.jar")
 }
 
 test {
