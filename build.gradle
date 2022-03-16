@@ -2,9 +2,10 @@ plugins {
 	id 'org.springframework.boot' version '2.6.3'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
+	id 'java-library'
 }
 
-group = 'com.example'
+group = 'com.villagomezdiaz'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
 
@@ -20,6 +21,7 @@ dependencies {
 	// tag::tests[]
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 	// end::tests[]
+	// compile fileTree(dir: 'lib', include: ['*.jar'])
 }
 
 test {
