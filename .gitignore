@@ -28,6 +28,7 @@ sampleImagesOutput/
 /nbdist/
 /.nb-gradle/
 build/
+bin/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
@@ -35,3 +36,4 @@ build/
 .vscode/
 .DS_Store
 .gradle/
+.gradle/7.0/

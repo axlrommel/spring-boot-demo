@@ -6,9 +6,8 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
+import com.villagomezdiaz.common.tools.DirectoryScanner;
 import com.villagomezdiaz.common.utilities.BackgroundBlacker;
-import com.villagomezdiaz.common.utilities.DirectoryScanner;
-import com.villagomezdiaz.jhlabs.ImageUtils;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -25,40 +24,27 @@ public class Application {
 	@Bean
 	public CommandLineRunner commandLineRunner() {
 		return args -> {
-String pathIn = "/Users/rav0214/Work/what-is-that-bird/sampleImages";
-String pathOut = "/Users/rav0214/Work/what-is-that-bird/sampleImagesOutput";
-			final int almostBlack = 50;
+			String pathIn = "/Users/rav0214/Work/what-is-that-bird/sampleImages";
+			String pathOut = "/Users/rav0214/Work/what-is-that-bird/sampleImagesOutput";
+			final int almostBlack = 30;
 			try {
-				DirectoryScanner dirScanner = new DirectoryScanner();
-				 dirScanner.setDirectoryToSearch(pathIn);
-				 dirScanner.setFileTypeToSearch("jpg");
-				 dirScanner.searchDirectory();
-				 List<File> list = dirScanner.getResult();
-				 System.out.println("hey");
-				 for(File f:list)
-				 {
-					 String inputPath = f.getAbsolutePath();
-					 System.out.println(inputPath);
-					 BufferedImage imageIn = ImageIO.read(f);
-					 BufferedImage imageTmp = BackgroundBlacker.convertFromCenter(imageIn, almostBlack);
-					 
-					 int newHeight = (int)(imageIn.getHeight()*2/3);
-					 BufferedImage imageOut = ImageUtils.getSubimage(imageTmp, 0, 0, imageIn.getWidth(), newHeight);
-					 
-					 String outputPath = pathOut + inputPath.substring(pathIn.length());
-					 File output = new File(outputPath);
-					 String dirPath = output.getParent();
-					 File dir = new File(dirPath);
-					 dir.mkdirs();
-					 ImageIO.write(imageOut, "jpg", output);
-				 }
-			}
-			catch (Exception e) {
+				DirectoryScanner scanner = new DirectoryScanner(pathIn, "jpg");
+				List<File> list = scanner.getResult();
+				for (File f : list) {
+					BufferedImage imageIn = ImageIO.read(f);
+					BufferedImage imageOut = BackgroundBlacker.convertFromAllSides(imageIn, almostBlack);
+
+					String outputPath = pathOut + f.getAbsolutePath().substring(pathIn.length());
+					File output = new File(outputPath);
+					File dir = new File(output.getParent());
+					dir.mkdirs();
+					ImageIO.write(imageOut, "jpg", output);
+				}
+			} catch (Exception e) {
 				e.printStackTrace();
+			} finally {
+				// ?
 			}
-			finally {
-				
-			}			
 
 		};
 	}

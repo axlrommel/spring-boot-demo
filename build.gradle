@@ -22,6 +22,9 @@ dependencies {
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 	// end::tests[]
 	implementation  files("lib/Filters.jar")
+	// https://mvnrepository.com/artifact/org.apache.commons/commons-math3
+	implementation group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
+
 }
 
 test {
