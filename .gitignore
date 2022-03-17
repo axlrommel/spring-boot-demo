@@ -37,3 +37,4 @@ bin/
 .DS_Store
 .gradle/
 .gradle/7.0/
+birds.bin
