@@ -7,6 +7,21 @@ import java.util.List;
 public class DirectoryScanner {
 	private List<File> result = new ArrayList<File>();
 
+	public static List<File> getSubFolders(String directory) throws Exception {
+		List<File> subFolders = new ArrayList<File>();
+		File d = new File(directory);
+		if (!d.isDirectory()) {
+			Exception e = new Exception(d.getAbsolutePath() + " is not a directory");
+			throw e;
+		}
+		if (d.canRead()) {
+			for (File temp : d.listFiles()) {
+				subFolders.add(temp);
+			}
+		}
+		return subFolders;
+	}
+
 	public DirectoryScanner(String directory, String fileType) throws Exception {
 		getFilesFromFolder(directory, fileType);
 	}
