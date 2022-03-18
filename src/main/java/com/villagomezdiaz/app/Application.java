@@ -1,15 +1,25 @@
 package com.villagomezdiaz.app;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
+import com.villagomezdiaz.common.tools.BackgroundBlacker;
 import com.villagomezdiaz.common.tools.ColorBytesStore;
 import com.villagomezdiaz.common.tools.DirectoryScanner;
+import com.villagomezdiaz.common.tools.ImageCorrelation;
 import com.villagomezdiaz.common.tools.ImageStatistics;
-import com.villagomezdiaz.common.utilities.BackgroundBlacker;
-import com.villagomezdiaz.common.utilities.CompareImagesInFolder;
+import com.villagomezdiaz.common.utilities.BlackBackgroundToImages;
+import com.villagomezdiaz.common.utilities.FindImageMatches;
+import com.villagomezdiaz.common.utilities.SaveSerializedMap;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -26,62 +36,36 @@ public class Application {
 	// @Bean
 	public CommandLineRunner backgroundBlacker() {
 		return args -> {
+			int threshold = 50;
 			String pathIn = "/Users/rav0214/Work/what-is-that-bird/images";
-			String pathOut = "/Users/rav0214/Work/what-is-that-bird/sampleImagesOutput";
-			final int almostBlack = 30;
-			try {
-				DirectoryScanner scanner = new DirectoryScanner(pathIn, "jpg");
-				List<File> list = scanner.getResult();
-				for (File f : list) {
-					BufferedImage imageIn = ImageIO.read(f);
-					BufferedImage imageOut = BackgroundBlacker.convertFromAllSides(imageIn, almostBlack);
-
-					String outputPath = pathOut + f.getAbsolutePath().substring(pathIn.length());
-					File output = new File(outputPath);
-					File dir = new File(output.getParent());
-					dir.mkdirs();
-					ImageIO.write(imageOut, "jpg", output);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				System.out.println("Done converting");
-			}
+			String pathOut = "/Users/rav0214/Work/what-is-that-bird/imagesOutput/" + threshold;
+			BlackBackgroundToImages.process(pathIn, pathOut, threshold);
 		};
 	}
 
 	// @Bean
-	public CommandLineRunner compareImagesInFolder() {
+	public CommandLineRunner saveBytesToObject() {
 		return args -> {
-			String inputFolder = "/Users/rav0214/Work/what-is-that-bird/sampleImagesOutput";
-			String resultsFolder = "/Users/rav0214/Work/what-is-that-bird/compareResults";
-			List<File> folders = DirectoryScanner.getSubFolders(inputFolder);
-			for (File folder : folders) {
-				CompareImagesInFolder.compare(folder.getAbsolutePath(), resultsFolder + "/" + folder.getName());
-			}
-			System.out.println("done");
+			int threshold = 50;
+			String inputFolder = "/Users/rav0214/Work/what-is-that-bird/imagesOutput/" + threshold;
+			String outputFile = "/Users/rav0214/Work/what-is-that-bird/birds." + threshold + ".bin";
+			SaveSerializedMap.process(inputFolder, outputFile);
 		};
 	}
 
 	@Bean
-	public CommandLineRunner saveBytesToObject() {
+	public CommandLineRunner findBirdMatch() {
 		return args -> {
-			String inputFolder = "/Users/rav0214/Work/what-is-that-bird/sampleImagesOutput";
-			String outputFile = "/Users/rav0214/Work/what-is-that-bird/birds.bin";
-			DirectoryScanner scanner = new DirectoryScanner(inputFolder, "jpg");
-			List<File> list = scanner.getResult();
-			ColorBytesStore store = new ColorBytesStore();
-			for (File jpg : list) {
-				BufferedImage image = ImageIO.read(jpg);
-				ImageStatistics stats = new ImageStatistics(image);
-				double[] reds = stats.getReds();
-				double[] greens = stats.getGreens();
-				double[] blues = stats.getBlues();
-				double[][] allColors = new double[][] { reds, greens, blues };
-				store.addToStore(jpg.getName(), allColors);
-			}
-			store.saveToFile(outputFile);
-			System.out.println("done");
+			int threshold = 30;
+			String testImage = "/Users/rav0214/Work/what-is-that-bird/testImages/pilatedWoodpecker.png";
+			String binFile = "/Users/rav0214/Work/what-is-that-bird/birds." + threshold + ".bin";
+			File imageFile = new File(testImage);
+			BufferedImage image = ImageIO.read(imageFile);
+			BufferedImage imageOut = BackgroundBlacker.convertFromAllSides(image, threshold);
+			HashMap<String, double[][]> store = ColorBytesStore.getFromFile(binFile);
+
+			FindImageMatches.process(imageOut, store);
+
 		};
 	}
 }
