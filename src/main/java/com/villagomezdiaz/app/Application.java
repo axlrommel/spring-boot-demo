@@ -1,22 +1,15 @@
 package com.villagomezdiaz.app;
 
-import java.io.File;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.Map.Entry;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.HashMap;
+
 import javax.imageio.ImageIO;
 
+import com.villagomezdiaz.app.storage.StorageProperties;
+import com.villagomezdiaz.app.storage.StorageService;
 import com.villagomezdiaz.common.tools.BackgroundBlacker;
 import com.villagomezdiaz.common.tools.ColorBytesStore;
-import com.villagomezdiaz.common.tools.DirectoryScanner;
-import com.villagomezdiaz.common.tools.ImageCorrelation;
-import com.villagomezdiaz.common.tools.ImageStatistics;
 import com.villagomezdiaz.common.utilities.BlackBackgroundToImages;
 import com.villagomezdiaz.common.utilities.FindImageMatches;
 import com.villagomezdiaz.common.utilities.SaveSerializedMap;
@@ -24,13 +17,23 @@ import com.villagomezdiaz.common.utilities.SaveSerializedMap;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
+@EnableConfigurationProperties(StorageProperties.class)
 public class Application {
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
+	}
+
+	@Bean
+	CommandLineRunner init(StorageService storageService) {
+		return (args) -> {
+			storageService.deleteAll();
+			storageService.init();
+		};
 	}
 
 	// @Bean
@@ -53,13 +56,13 @@ public class Application {
 		};
 	}
 
-	@Bean
+	// @Bean
 	public CommandLineRunner findBirdMatch() {
 		return args -> {
 			int threshold = 30;
-			String testImage = "/Users/rav0214/Work/what-is-that-bird/testImages/pilatedWoodpecker.png";
+			String inputImage = "/Users/rav0214/Work/what-is-that-bird/testImages/pilatedWoodpecker.png";
 			String binFile = "/Users/rav0214/Work/what-is-that-bird/birds." + threshold + ".bin";
-			File imageFile = new File(testImage);
+			File imageFile = new File(inputImage);
 			BufferedImage image = ImageIO.read(imageFile);
 			BufferedImage imageOut = BackgroundBlacker.convertFromAllSides(image, threshold);
 			HashMap<String, double[][]> store = ColorBytesStore.getFromFile(binFile);

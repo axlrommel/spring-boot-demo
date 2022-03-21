@@ -39,3 +39,5 @@ bin/
 .gradle/7.0/
 birds*.bin
 imagesOutput/
+upload-dir/
+bin/
